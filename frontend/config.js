@@ -16,4 +16,4 @@
  * Then redeploy this static site.
  * ─────────────────────────────────────────────────────
  */
-window.API_BASE_URL = '';
+window.API_BASE_URL = 'https://adhd-ai-assistant.onrender.com';
