@@ -1,105 +1,102 @@
 # ADHD AI Assistant
 
-A complete, modern chat application designed specifically to support individuals with ADHD. The assistant provides different interaction modes (Minimal, Direct, Supportive, Structured) tailored to different cognitive needs and states. Powered by Google Gemini API.
+A complete, modern chat application designed specifically to support individuals with ADHD. The assistant provides four interaction modes tailored to different cognitive needs and states. Powered by the **Groq API** (llama-3.3-70b-versatile).
+
+🌐 **Live Demo:** [https://adhd-assistant-3eau.onrender.com](https://adhd-assistant-3eau.onrender.com)
+
+---
+## Preview 
+<img width="1917" height="968" alt="Screenshot 2026-05-19 130817" src="https://github.com/user-attachments/assets/43f18a50-9451-4490-b5ef-2fbfc940604d" />
 
 ## Features
 
-- **Four Specialized Modes**:
-  - **Minimal**: Brief, concise responses. Perfect when feeling overwhelmed.
-  - **Direct**: Reality-focused, action-oriented advice to cut through distractions.
-  - **Supportive**: Gentle, encouraging guidance that validates ADHD challenges.
-  - **Structured**: Step-by-step, highly organized responses to break down complex tasks.
-- **Modern UI**: Clean, responsive layout that works on desktop, tablet, and mobile.
-- **Accessibility**: Support for dark/light themes and reduced motion preferences.
-- **Local History**: Chat history and preferences persist securely in your browser.
-- **Test Mode**: Develop and test the UI without consuming API credits.
+- **Four Specialized Modes:**
+  - **Minimal** — Brief, concise responses. Perfect when feeling overwhelmed.
+  - **Direct** — Reality-focused, action-oriented advice to cut through distractions.
+  - **Supportive** — Gentle, encouraging guidance that validates ADHD challenges.
+  - **Structured** — Step-by-step, highly organized responses to break down complex tasks.
+- **Modern UI** — Clean, responsive layout that works on desktop, tablet, and mobile.
+- **Accessibility** — Support for dark/light themes and reduced motion preferences.
+- **Local History** — Chat history and preferences persist securely in your browser.
+- **Test Mode** — Develop and test the UI without consuming API credits.
 
 ---
 
-## Setup (First Time)
+## Local Development Setup
 
-Follow these instructions to get the application running on your local machine.
+### Prerequisites
+- Python 3.8+
+- A free [Groq API key](https://console.groq.com/keys)
 
-### 1. Get a Google Gemini API Key
+> **No virtual environment required** — you can install dependencies globally or use one optionally.
 
-1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey).
-2. Sign in with your Google account.
-3. Click on "Create API key".
-4. Copy your API key (keep it secure!).
+---
+
+### 1. Get a Groq API Key
+
+1. Go to [console.groq.com/keys](https://console.groq.com/keys)
+2. Sign in or create a free account
+3. Click **"Create API Key"**
+4. Copy your key (keep it secure!)
+
+---
 
 ### 2. Backend Setup
 
-1. Open a terminal and navigate to the `backend` directory:
-   ```bash
-   cd backend
-   ```
-
-2. Create a virtual environment:
-   ```bash
-   # Windows
-   python -m venv venv
-   
-   # macOS/Linux
-   python3 -m venv venv
-   ```
-
-3. Activate the virtual environment:
-   ```bash
-   # Windows
-   venv\Scripts\activate
-   
-   # macOS/Linux
-   source venv/bin/activate
-   ```
-
-4. Install the required dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-5. Set up your environment variables:
-   - Copy `.env.example` to `.env`:
-     ```bash
-     cp .env.example .env
-     ```
-   - Open `.env` in a text editor and replace `your_google_api_key_here` with your actual API key.
-
-6. Start the backend server:
-   ```bash
-   python app.py
-   ```
-   You should see a message indicating the server is running on `http://127.0.0.1:5000`.
-
-### 3. Frontend Setup
-
-The frontend consists of static files and doesn't require complex build steps.
-
-1. Open the `frontend/index.html` file directly in your web browser.
-   - Alternatively, you can serve it locally for a better experience:
-     ```bash
-     cd frontend
-     python -m http.server 8000
-     ```
-     Then open `http://localhost:8000` in your browser.
-
----
-
-## Running (After Setup)
-
-To use the application after the initial setup, you need to run the backend and open the frontend.
-
-**Terminal 1 (Backend):**
 ```bash
+# Navigate to the backend folder
 cd backend
-# Windows:
-venv\Scripts\activate
-# macOS/Linux:
-# source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Copy the example env file
+cp .env.example .env
+```
+
+Open `.env` and set your key:
+```
+GROQ_API_KEY=your_groq_api_key_here
+```
+
+Start the backend:
+```bash
 python app.py
 ```
 
-**Terminal 2 (Frontend):**
-Open `frontend/index.html` in your browser, or start a simple HTTP server:
+You should see the server running at `http://127.0.0.1:5000`.
+
+---
+
+### 3. Frontend Setup
+
+The frontend is plain HTML/CSS/JS — no build step needed.
+
+**Option A — Open directly:**
+```
+Open frontend/index.html in your browser
+```
+
+**Option B — Serve locally (recommended):**
+```bash
+cd frontend
+python -m http.server 8000
+```
+Then open `http://localhost:8000`
+
+> The frontend automatically falls back to `http://127.0.0.1:5000` when `window.API_BASE_URL` is empty, so no config changes are needed for local development.
+
+---
+
+### Running After Setup
+
+**Terminal 1 — Backend:**
+```bash
+cd backend
+python app.py
+```
+
+**Terminal 2 — Frontend:**
 ```bash
 cd frontend
 python -m http.server 8000
@@ -107,19 +104,82 @@ python -m http.server 8000
 
 ---
 
+## Production Deployment (Render.com)
+
+The app is deployed as two separate services on Render:
+
+| Service | Type | URL |
+|---|---|---|
+| Backend (Flask) | Web Service | `https://adhd-ai-assistant.onrender.com` |
+| Frontend (Static) | Static Site | `https://adhd-assistant-3eau.onrender.com` |
+
+### Backend Environment Variables (set in Render dashboard)
+
+| Key | Value |
+|---|---|
+| `GROQ_API_KEY` | Your Groq API key |
+| `ALLOWED_ORIGINS` | `https://adhd-assistant-3eau.onrender.com` |
+| `PORT` | `10000` |
+
+### Frontend Config
+
+`frontend/config.js` sets the backend URL for production:
+```js
+window.API_BASE_URL = 'https://adhd-ai-assistant.onrender.com';
+```
+
+> For local development, leave this as an empty string `''` — the app will fall back to `127.0.0.1:5000` automatically.
+
+---
+
 ## Troubleshooting
 
-- **Server Error (500) / "Cannot connect to backend server"**:
-  - Ensure the backend terminal is open and `python app.py` is running without errors.
-  - Check that you are accessing the frontend via HTTP (if running the server) or the file protocol, and that your CORS configuration allows the connection.
+**"Network error — make sure the backend is running"**
+- Locally: ensure `python app.py` is running in the `backend/` folder
+- Production: check Render backend service logs for crash errors
 
-- **API Not Configured / Authentication Failed**:
-  - Double-check that your `GOOGLE_API_KEY` in the `backend/.env` file is exactly what you copied from Google AI Studio.
-  - Ensure you saved the `.env` file correctly.
+**API Authentication Failed**
+- Verify `GROQ_API_KEY` in `backend/.env` matches exactly what you copied from Groq console
+- On Render: confirm the key is set in the Environment tab
 
-- **Rate Limit Exceeded**:
-  - You are making too many requests in a short period. Wait a few moments and try again. 
-  - To test UI interactions without hitting limits, toggle **Test Mode** to ON in the sidebar.
+**Changes in CSS/JS not reflecting**
+- Hard refresh: `Ctrl+F5` (Windows) or `Cmd+Shift+R` (Mac)
 
-- **Changes in CSS/JS not reflecting**:
-  - Clear your browser cache or perform a hard refresh (`Ctrl + F5` or `Cmd + Shift + R`).
+**Backend slow on first request (Render free tier)**
+- Free tier services sleep after 15 minutes of inactivity
+- The first request after sleep takes ~30 seconds to wake up — this is normal
+
+**Rate Limit Exceeded**
+- You're sending too many requests too quickly — wait a moment and retry
+- Toggle **Test Mode ON** in the sidebar to test the UI without hitting the API
+
+---
+
+## Project Structure
+
+```
+adhd-ai-assistant/
+├── backend/
+│   ├── app.py              # Flask API server
+│   ├── requirements.txt    # Python dependencies
+│   ├── .env.example        # Environment variable template
+│   └── .env                # Your local secrets (never commit this)
+├── frontend/
+│   ├── index.html          # Main HTML file
+│   ├── config.js           # API base URL config
+│   └── scripts/
+│       └── main.js         # Frontend logic
+├── render.yaml             # Render deployment config
+└── README.md
+```
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Plain HTML, CSS, JavaScript |
+| Backend | Python, Flask |
+| AI Model | Groq API — llama-3.3-70b-versatile |
+| Hosting | Render.com |
