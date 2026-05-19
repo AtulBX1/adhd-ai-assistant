@@ -38,7 +38,11 @@ class FocusApp {
         this.currentMode = 'minimal';
         this.testMode    = false;
         this.isTyping    = false;
-        this.apiUrl      = 'http://127.0.0.1:5000';
+        // API base URL — set window.API_BASE_URL in config.js for production.
+        // Falls back to localhost for local development.
+        this.apiUrl      = (window.API_BASE_URL && window.API_BASE_URL.trim() !== '')
+                             ? window.API_BASE_URL.trim().replace(/\/$/, '')
+                             : 'http://127.0.0.1:5000';
         this.maxChars    = 5000;
         this.searchActive = false;
 

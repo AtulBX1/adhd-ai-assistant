@@ -12,37 +12,46 @@ load_dotenv()
 
 # Create Flask app
 app = Flask(__name__)
-CORS(app)  # This allows your frontend to talk to your backend
 
-# Initialize Gemini API
+# ── CORS Configuration ────────────────────────────────
+# Read allowed origins from env var; fall back to localhost for local dev.
+# In production set: ALLOWED_ORIGINS=https://your-frontend.onrender.com
+_raw_origins = os.environ.get("ALLOWED_ORIGINS", "http://127.0.0.1:5000,http://localhost:3000")
+ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
+CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
+
+# Initialize Gemini API (wraps Groq under the hood)
 gemini_api = GeminiAPI()
 
 
-# Basic route to test if the server is running
+# ── Health Check (required by Render) ─────────────────
+@app.route('/health')
+def health():
+    return jsonify({"status": "ok"})
+
+
+# ── Root ──────────────────────────────────────────────
 @app.route('/')
 def home():
     return jsonify({"message": "ADHD AI Assistant Backend is running!"})
 
 
-# Main chat endpoint - this is where POST requests come
+# ── Main chat endpoint ────────────────────────────────
 @app.route('/chat', methods=['POST'])
 def chat():
     try:
-        # Get data from the POST request
         data = request.get_json()
 
-        # Extract user message, prompt mode, and test mode
         user_message = data.get('message', '')
-        prompt_mode = data.get('mode', 'minimal')  # Default to minimal for testing
+        prompt_mode = data.get('mode', 'minimal')
         test_mode = data.get('test_mode', False)
         conversation_history = data.get('conversation_history', [])
 
-        # Validate input
         if not user_message.strip():
             return jsonify({"error": "Message cannot be empty"}), 400
 
         if test_mode:
-            # Return mock response without calling Claude API
             mock_responses = {
                 "minimal": "This is a mock minimal response.",
                 "direct": "Mock direct response - straight to the point.",
@@ -57,24 +66,20 @@ def chat():
                 "success": True
             })
 
-        # Get the appropriate system prompt for the selected mode
         system_prompt = get_system_prompt(prompt_mode)
 
-        # Call Gemini API with the prompt and user message
         response = gemini_api.send_message(
             message=user_message,
             system_prompt=system_prompt,
             conversation_history=conversation_history
         )
 
-        # Check if there was an error from Gemini API
         if "error" in response and response["error"] is True:
             return jsonify({
                 "error": response["content"],
                 "success": False
             }), 500
 
-        # Return the successful response
         return jsonify({
             "response": response["content"],
             "mode": prompt_mode,
@@ -84,7 +89,6 @@ def chat():
         })
 
     except Exception as e:
-        # Handle any errors
         print(f"Error in chat endpoint: {str(e)}")
         return jsonify({
             "error": "Something went wrong processing your message",
@@ -92,7 +96,7 @@ def chat():
         }), 500
 
 
-# Optional: endpoint to get available prompt modes
+# ── Available modes ───────────────────────────────────
 @app.route('/modes', methods=['GET'])
 def get_modes():
     return jsonify({
@@ -102,15 +106,14 @@ def get_modes():
     })
 
 
-# Optional: endpoint to check API status
+# ── API status ────────────────────────────────────────
 @app.route('/status', methods=['GET'])
 def status():
     try:
-        # Try to create GeminiAPI instance to check if API key is configured
-        gemini_api = GeminiAPI()
+        api = GeminiAPI()
         return jsonify({
             "api_configured": True,
-            "model": gemini_api.model_name,
+            "model": api.model_name,
             "success": True
         })
     except ValueError as e:
@@ -121,16 +124,16 @@ def status():
         }), 500
 
 
-# Run the app
+# ── Entry point ───────────────────────────────────────
 if __name__ == '__main__':
-    # Check if API key is set
+    port = int(os.environ.get("PORT", 5000))
+
     try:
         test_api = GeminiAPI()
-        print("Gemini API successfully initialized")
+        print(f"Groq API successfully initialized (model: {test_api.model_name})")
     except ValueError as e:
         print(f"Warning: {e}")
         print("Make sure to set your GROQ_API_KEY in the .env file")
 
-    # Run in debug mode for development
-    print("Starting ADHD AI Assistant Backend...")
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    print(f"Starting ADHD AI Assistant Backend on port {port}...")
+    app.run(debug=False, host='0.0.0.0', port=port)

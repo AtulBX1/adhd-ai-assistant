@@ -1,0 +1,29 @@
+services:
+  # ── Backend Web Service ─────────────────────────────
+  - type: web
+    name: adhd-assistant-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false          # Set manually in Render dashboard — never commit this
+      - key: ALLOWED_ORIGINS
+        sync: false          # e.g. https://adhd-assistant-frontend.onrender.com
+      - key: PORT
+        value: 10000
+      - key: FLASK_ENV
+        value: production
+    healthCheckPath: /health
+
+  # ── Frontend Static Site ────────────────────────────
+  - type: static
+    name: adhd-assistant-frontend
+    rootDir: frontend
+    buildCommand: echo "No build step required — plain HTML/CSS/JS"
+    staticPublishPath: .
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
