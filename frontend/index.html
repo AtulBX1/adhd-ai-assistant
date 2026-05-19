@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus — ADHD AI Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body data-theme="dark">
+
+<div class="app-shell">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        
+        <!-- App Brand -->
+        <div class="brand">
+            <div class="brand-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                    <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <span class="brand-name">Focus</span>
+            <div class="brand-actions">
+                <button class="icon-btn" id="theme-toggle" title="Toggle theme" aria-label="Toggle light/dark theme">
+                    <i class="fa-solid fa-moon" id="theme-icon"></i>
+                </button>
+                <button class="icon-btn mobile-only" id="sidebar-close" aria-label="Close menu">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mode Selector -->
+        <div class="sidebar-section">
+            <div class="section-label">Support Mode</div>
+            <div class="mode-grid" id="mode-selector">
+                <button class="mode-card active" data-mode="minimal" aria-pressed="true">
+                    <div class="mode-icon" style="--mode-color: var(--accent-blue)">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div class="mode-info">
+                        <div class="mode-name">Minimal</div>
+                        <div class="mode-hint">Brief & clear</div>
+                    </div>
+                </button>
+                <button class="mode-card" data-mode="direct" aria-pressed="false">
+                    <div class="mode-icon" style="--mode-color: var(--accent-orange)">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <div class="mode-info">
+                        <div class="mode-name">Direct</div>
+                        <div class="mode-hint">Action-focused</div>
+                    </div>
+                </button>
+                <button class="mode-card" data-mode="supportive" aria-pressed="false">
+                    <div class="mode-icon" style="--mode-color: var(--accent-green)">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <div class="mode-info">
+                        <div class="mode-name">Supportive</div>
+                        <div class="mode-hint">Gentle & warm</div>
+                    </div>
+                </button>
+                <button class="mode-card" data-mode="structured" aria-pressed="false">
+                    <div class="mode-icon" style="--mode-color: var(--accent-purple)">
+                        <i class="fa-solid fa-list-ol"></i>
+                    </div>
+                    <div class="mode-info">
+                        <div class="mode-name">Structured</div>
+                        <div class="mode-hint">Step-by-step</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Pomodoro Timer (NEW FEATURE) -->
+        <div class="sidebar-section">
+            <div class="section-label">Focus Timer</div>
+            <div class="pomodoro-widget" id="pomodoro">
+                <div class="pomodoro-display">
+                    <span id="pomodoro-time">25:00</span>
+                    <span class="pomodoro-label" id="pomodoro-label">Focus</span>
+                </div>
+                <div class="pomodoro-controls">
+                    <button class="pom-btn" id="pom-toggle" title="Start/Pause timer">
+                        <i class="fa-solid fa-play" id="pom-icon"></i>
+                    </button>
+                    <button class="pom-btn" id="pom-reset" title="Reset timer">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                    <button class="pom-btn" id="pom-skip" title="Skip to break">
+                        <i class="fa-solid fa-forward-step"></i>
+                    </button>
+                </div>
+                <div class="pomodoro-progress">
+                    <div class="pom-progress-bar" id="pom-progress"></div>
+                </div>
+                <div class="pom-sessions">Session <span id="pom-count">1</span>/4</div>
+            </div>
+        </div>
+
+        <!-- Quick Tasks (NEW FEATURE) -->
+        <div class="sidebar-section">
+            <div class="section-label">
+                Quick Tasks
+                <button class="add-task-btn" id="add-task-btn" title="Add task">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+            <div class="task-list" id="task-list">
+                <!-- Tasks injected by JS -->
+                <div class="task-empty">No tasks yet. Add one above!</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="sidebar-footer">
+            <div class="footer-row">
+                <div class="test-mode-toggle">
+                    <label class="switch-label" for="test-mode-toggle">
+                        <input type="checkbox" id="test-mode-toggle" role="switch">
+                        <span class="switch-track"></span>
+                        <span class="switch-text">Test Mode</span>
+                    </label>
+                </div>
+            </div>
+            <div class="footer-row status-row">
+                <div class="status-badge" id="status-badge">
+                    <span class="status-dot" id="status-dot"></span>
+                    <span id="status-text">Connecting...</span>
+                </div>
+                <button class="ghost-btn danger" id="clear-chat-btn" title="Clear chat">
+                    <i class="fa-solid fa-trash-can"></i>
+                    Clear
+                </button>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- MAIN CHAT AREA -->
+    <main class="chat-main">
+
+        <!-- Chat Topbar -->
+        <header class="chat-topbar">
+            <button class="icon-btn mobile-only" id="menu-open-btn" aria-label="Open menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="topbar-mode">
+                <div class="mode-pip" id="topbar-mode-pip"></div>
+                <span id="topbar-mode-label">Minimal Mode</span>
+            </div>
+            <div class="topbar-actions">
+                <button class="icon-btn" id="search-btn" title="Search messages (Ctrl+F)" aria-label="Search chat">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <button class="icon-btn" id="export-btn" title="Export chat" aria-label="Export chat">
+                    <i class="fa-solid fa-download"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Search Bar (hidden by default) (NEW FEATURE) -->
+        <div class="search-bar hidden" id="search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="search-input" placeholder="Search messages..." aria-label="Search messages">
+            <span id="search-count"></span>
+            <button class="icon-btn" id="search-close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Messages -->
+        <div class="messages-wrap" id="chat-messages" aria-live="polite" aria-label="Chat messages">
+            <!-- Welcome State -->
+            <div class="welcome-screen" id="welcome-screen">
+                <div class="welcome-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="3" fill="var(--accent-blue)"/>
+                        <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12" stroke="var(--accent-blue)" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h2>Hi, I'm Focus</h2>
+                <p>Your ADHD-aware AI assistant. Choose a support mode and let's get started.</p>
+                <div class="suggestion-chips" id="suggestion-chips">
+                    <button class="chip" data-prompt="I'm feeling overwhelmed and don't know where to start">😤 I'm overwhelmed</button>
+                    <button class="chip" data-prompt="Help me break down a task I've been avoiding">📋 Break down a task</button>
+                    <button class="chip" data-prompt="I can't focus today. What can I do right now?">🧠 Can't focus</button>
+                    <button class="chip" data-prompt="I need motivation to start working">⚡ Need motivation</button>
+                    <button class="chip" data-prompt="Help me make a quick to-do list for today">✅ Plan my day</button>
+                    <button class="chip" data-prompt="I keep procrastinating on an important thing">🔄 Procrastination help</button>
+                </div>
+            </div>
+            <!-- Messages injected here by JS -->
+        </div>
+
+        <!-- Typing Indicator (lives outside scroll area so it's always visible) -->
+        <div class="typing-wrap hidden" id="typing-indicator">
+            <div class="typing-bubble">
+                <span></span><span></span><span></span>
+            </div>
+            <span class="typing-text">Focus is thinking...</span>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="input-box" id="input-box">
+                <textarea 
+                    id="message-input"
+                    placeholder="Message Focus... (Enter to send, Shift+Enter for new line)"
+                    rows="1"
+                    maxlength="5000"
+                    aria-label="Type your message"
+                    autocomplete="off"
+                ></textarea>
+                <div class="input-actions">
+                    <span class="char-count" id="char-count">0/5000</span>
+                    <button class="send-btn" id="send-btn" disabled aria-label="Send message">
+                        <i class="fa-solid fa-arrow-up"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="input-meta">
+                <span class="keyboard-hint"><kbd>Enter</kbd> send · <kbd>Shift+Enter</kbd> newline · <kbd>Ctrl+F</kbd> search</span>
+            </div>
+        </div>
+
+    </main>
+
+</div>
+
+<!-- Add Task Modal (NEW FEATURE) -->
+<div class="modal-overlay hidden" id="task-modal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Add Task</h3>
+            <button class="icon-btn" id="task-modal-close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <input type="text" class="modal-input" id="task-input" placeholder="What do you need to do?" maxlength="200">
+        <div class="modal-footer">
+            <button class="ghost-btn" id="task-modal-cancel">Cancel</button>
+            <button class="primary-btn" id="task-modal-save">Add Task</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container" aria-live="assertive"></div>
+
+<script src="scripts/main.js"></script>
+</body>
+</html>
